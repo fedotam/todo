@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Details</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <style>
+        /* Custom styles */
+        body {
+            background-color: #e7f1fb; /* Light gray background */
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .card {
+            border: none;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-body {
+            background-color: #ffffff; /* White background */
+            border-radius: 8px;
+            padding: 20px; /* Increased padding for better spacing */
+        }
+        .card-title {
+            color: #007bff; /* Blue title */
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px; /* Reduced margin bottom */
+        }
+        .card-text {
+            color: #495057; /* Dark gray text */
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 8px; /* Reduced margin bottom */
+        }
+        .btn-secondary {
+            background-color: #6c757d; /* Gray button */
+            color: #ffffff; /* White text */
+            border: none;
+            margin-top: 20px; /* Increased top margin */
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268; /* Darker gray on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- "Go back" link -->
+        <a href="{% url 'task-list' %}" class="btn btn-secondary mb-3">Go back</a>
+        
+        <!-- Task details -->
+        <h1 class="mb-4">Task: {{ task.title }}</h1>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Details</h5>
+                <p class="card-text"><strong>Title:</strong> {{ task.title }}</p>
+                <p class="card-text"><strong>Description:</strong> {{ task.description }}</p>
+                <p class="card-text"><strong>Due Date:</strong> {{ task.due_date }}</p>
+                <p class="card-text"><strong>Priority:</strong> {{ task.get_priority_display }}</p>
+                <p class="card-text"><strong>Status:</strong> {% if task.complete %}Completed{% else %}Pending{% endif %}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

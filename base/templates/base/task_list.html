@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+    <style>
+        /* General body styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333; /* Dark text color */
+            background-color: #e7f1fb; /* Soft-soft beige */
+        }
+
+        /* Custom heading style */
+        .custom-heading {
+            font-size: 36px;
+            font-weight: bold;
+            color: #0b1e58; /* Soft blue */
+            text-transform: uppercase;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            background-color: #52aae0; /* Light orange */
+            padding: 20px; /* Increased padding for emphasis */
+            border-radius: 6px; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            margin-bottom: 30px; /* Added spacing below heading */
+            color: #ffffff; /* White text */
+        }
+
+        /* Highlight text style */
+        .highlight-text {
+            padding: 8px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #333; /* Dark text color */
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Filter form style */
+        .filter-form {
+            margin-bottom: 20px;
+        }
+
+        /* Task table style */
+        .task-table {
+            background-color: #ffffff; /* White background */
+            border: 1px solid #e0e0e0; /* Light gray border */
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Ensure rounded corners are consistent */
+            margin-bottom: 30px; /* Added spacing below table */
+        }
+
+        /* Table header style */
+        .task-table th {
+            background-color: #336699; /* Soft blue */
+            color: #ffffff; /* White text */
+            text-align: center; /* Center align text */
+            vertical-align: middle; /* Middle align vertically */
+            font-size: 18px; /* Increased font size */
+            padding: 12px; /* Increased padding */
+        }
+
+        /* Table cell style */
+        .task-table td {
+            vertical-align: middle; /* Middle align vertically */
+            font-size: 16px; /* Regular font size */
+            padding: 10px; /* Regular padding */
+        }
+
+        /* Task actions button group style */
+        .task-actions a.btn {
+            color: #ffffff; /* White text */
+            text-shadow: none; /* Remove text shadow */
+            font-size: 14px; /* Smaller font size */
+            padding: 6px 12px; /* Adjusted padding */
+            margin: 4px; /* Adjusted margin */
+        }
+
+        /* View button style */
+        .task-actions a.btn-info {
+            background-color:  #52aae0; /* Dark blue */
+            border-color: #52aae0; /* Border color */
+        }
+
+        .task-actions a.btn-info:hover {
+            background-color: #336699; /* Light blue on hover */
+            border-color: #336699; /* Border color on hover */
+        }
+
+        /* Edit button style */
+        .task-actions a.btn-primary {
+            background-color: #e3aa39; /* Orange */
+            border-color: #d8c460; /* Border color */
+        }
+
+        .task-actions a.btn-primary:hover {
+            background-color: #ff9f43; /* Lighter orange on hover */
+            border-color: #ff9f43; /* Border color on hover */
+        }
+
+        /* Delete button style */
+        .task-actions a.btn-danger {
+            background-color: #e74c3c; /* Soft red */
+            border-color: #e74c3c; /* Border color */
+        }
+
+        .task-actions a.btn-danger:hover {
+            background-color: #c0392b; /* Darker red on hover */
+            border-color: #c0392b; /* Border color on hover */
+        }
+
+        /* No items section background style */
+        .no-items {
+            background-color: #efd8d8; /* Light red background */
+            text-align: center; /* Center align text */
+        }
+
+        /* Add Task button style */
+        .btn-add-task {
+            background-color: #e3aa39; /* Soft blue */
+            color: #ffffff; /* White text */
+            border-color: #e8d473; /* Border color */
+            margin-bottom: 20px; /* Added spacing */
+        }
+
+        .btn-add-task:hover {
+            background-color: #e79c5a; /* Dark blue on hover */
+            border-color: #e79c5a; /* Border color on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- User Authentication -->
+        {% if user.is_authenticated %}
+        <div class="mb-3">
+            <span class="highlight-text">Welcome, {{ request.user.username }}</span>
+            <form action="{% url 'logout' %}" method="post" style="display: inline-block;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-link text-danger">Logout</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Page Header -->
+        <h1 class="custom-heading">To-Do List</h1>
+
+        <!-- Filter Form -->
+        <form method="GET" action="{% url 'task-list' %}" class="filter-form">
+            <div class="form-group">
+                <label for="priority">Filter by Priority:</label>
+                <select name="priority" id="priority" class="form-control">
+                    <option value="">All</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+
+        <!-- Add Task Button -->
+        <a href="{% url 'task-create' %}" class="btn btn-add-task mb-3">Add Task</a>
+
+        <!-- Task List Table -->
+        <div class="table-responsive task-table">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Title</th>
+                        <th>Due Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.due_date }}</td>
+                        <td class="task-actions">
+                            <a href="{% url 'task' pk=task.pk %}" class="btn btn-info btn-sm">View</a>
+                            <a href="{% url 'task-update' task.pk %}" class="btn btn-primary btn-sm">Edit</a>
+                            <a href="{% url 'task-delete' task.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr class="no-items">
+                        <td colspan="3"><h3>No items in the list</h3></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+
