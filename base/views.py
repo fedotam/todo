@@ -9,6 +9,7 @@ from django.http import Http404
 from django.urls import reverse_lazy
 from .models import Task
 from .forms import CustomUserCreationForm
+from django.db.models import Q
 
 # Function-based view for user registration
 def register(request):
@@ -40,6 +41,13 @@ class TaskList(ListView):
         priority = self.request.GET.get('priority', None)
         if priority:
             queryset = queryset.filter(priority=priority)
+        search_query = self.request.GET.get('search', None)
+        
+        # Search by task title or description
+        if search_query:
+           queryset = queryset.filter(
+            Q(title__icontains=search_query) | Q(description__icontains=search_query)
+        )
         return queryset
 
 # Class-based view for showing task details, requires user to be logged in
@@ -49,10 +57,11 @@ class TaskDetail(DetailView):
     context_object_name = 'task'
     template_name = 'base/task.html'
 
-    # Ensure the task belongs to the current user
     def get_object(self, queryset=None):
-        pk = self.kwargs.get('pk')
-        return get_object_or_404(Task, pk=pk)
+        task = super().get_object(queryset)
+        if task.user != self.request.user:
+            raise PermissionDenied("You do not have permission to view this task.")
+        return task
 
 # Class-based view for creating a new task, requires user to be logged in
 @method_decorator(login_required, name='dispatch')
@@ -62,10 +71,10 @@ class TaskCreate(CreateView):
     success_url = reverse_lazy('task-list')
     template_name = 'base/task_form.html'
 
-    # Automatically assign the current user to the new task
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
+    # # Automatically assign the current user to the new task
+    # def form_valid(self, form):
+    #     form.instance.user = self.request.user
+    #     return super().form_valid(form)
 
 # Class-based view for updating an existing task, requires user to be logged in
 @method_decorator(login_required, name='dispatch')
@@ -96,3 +105,4 @@ class TaskDelete(DeleteView):
         if task.user != self.request.user:
             raise PermissionDenied
         return task
+    
